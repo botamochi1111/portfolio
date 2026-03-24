@@ -15,7 +15,7 @@ export default function Background() {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     mountRef.current.appendChild(renderer.domElement)
 
-    const texture = new THREE.TextureLoader().load("/bg.jpg", (tex) => {
+    const texture = new THREE.TextureLoader().load("bg.jpg", (tex) => {
       material.uniforms.uImageRes.value.set(tex.image.width, tex.image.height)
     })
     texture.wrapS = THREE.ClampToEdgeWrapping
