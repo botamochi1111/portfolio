@@ -4,7 +4,7 @@ import Background from "./Background"
 function Home() {
   return (
     <div className="menu">
-      <div className="title">星野 大 ポートフォリオ</div>
+      <div className="title">星野 大 ポートフォリオ(まだ制作中)</div>
       <div className="title">Tai Hoshino Portofolio</div>
 
 
