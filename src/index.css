@@ -1,0 +1,78 @@
+/* ===== ベース ===== */
+body {
+  margin: 0;
+  /* 背景画像はThree.js側で出すので、ここでは消すか、
+     読み込み完了までの予備として真っ黒にしておきます */
+  background: #000; 
+  overflow: hidden;
+  color: white;
+}
+
+/* ★「body::before」は削除しました
+   Three.jsの「なびき」とCSSの「warp」が重なると
+   見た目がバラバラになるためです。
+*/
+
+/* ===== ノイズ＋流れ（オーバーレイ効果として残す） ===== */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+
+  /* 走査線のようなノイズエフェクト */
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(255,255,255,0.015) 0px,
+      rgba(255,255,255,0.015) 1px,
+      transparent 2px
+    );
+
+  mix-blend-mode: overlay;
+  animation: flow 6s linear infinite;
+  pointer-events: none;
+  /* Three.js（z-index: -1）より上に重ねるため 1 に設定 */
+  z-index: 1; 
+}
+
+/* 走査線の動き */
+@keyframes flow {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(30px); }
+}
+
+/* 中央配置などのUIパーツはそのまま */
+.menu {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10; /* 最前面に */
+}
+
+.title {
+  font-size: 48px;
+  text-align: center;
+  margin-bottom: 40px;
+  letter-spacing: 4px;
+  text-shadow: 0 0 10px #c084fc, 0 0 30px #7c3aed;
+}
+
+.menu-item {
+  font-size: 24px;
+  padding: 10px 0;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.3s;
+  opacity: 0.7;
+}
+
+.menu-item:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  text-shadow: 0 0 10px #fff, 0 0 20px #a78bfa;
+}
+
+#root {
+  background: transparent !important;
+}
