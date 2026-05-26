@@ -12,7 +12,9 @@ export default function Background() {
 
     const renderer = new THREE.WebGLRenderer({ antialias: true })
     renderer.setSize(window.innerWidth, window.innerHeight)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    
+    // ★画素数過多によるGPU暴走を防ぐため、デバイスピクセル比の最大値を2.0から1.5に制限（視覚的な劣化はゼロ）
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5))
     mountRef.current.appendChild(renderer.domElement)
 
     const texture = new THREE.TextureLoader().load("bg.jpg", (tex) => {
@@ -25,7 +27,7 @@ export default function Background() {
       uniforms: {
         uTexture: { value: texture },
         uTime: { value: 0 },
-        uScroll: { value: 0 }, // スクロール量を保持
+        uScroll: { value: 0 },
         uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
         uImageRes: { value: new THREE.Vector2(1, 1) }
       },
@@ -47,37 +49,43 @@ export default function Background() {
         void main() {
           float screenAspect = uResolution.x / uResolution.y;
           float imageAspect = uImageRes.x / uImageRes.y;
-          
-          // スクロールで動かすために、少しだけ表示領域を狭く設定（マージンを持たせる）
           float scrollFactor = 0.15; 
           vec2 ratio = vec2(
             min(screenAspect / imageAspect, 1.0),
             min(imageAspect / screenAspect, 1.0) * (1.0 - scrollFactor)
           );
-
-          // UV座標の計算。uScroll に応じて y 座標をオフセットさせる
           vec2 uv = (vUv - 0.5) * ratio + 0.5;
           uv.y += uScroll * scrollFactor - (scrollFactor * 0.5);
 
-          // つなぎ目が見えないように安全圏を確保
-          float waveStrength = 0.015;
-          vec2 safeUv = uv * (1.0 - waveStrength * 2.0) + waveStrength;
+          vec2 baseWave = vec2(
+            sin(vUv.y * 2.0 + uTime * 0.5),
+            cos(vUv.x * 2.0 + uTime * 0.5)
+          ) * 0.02;
+          uv += baseWave;
 
-          // ゆったりとした波の動き
-          float wave = sin((safeUv.x + safeUv.y) * 2.0 - uTime) * waveStrength;
-          safeUv += wave;
+          float angle = (1.0 - vUv.y) * 1.2 + vUv.x * 0.8;
+          float waveSpeed = uTime * 1.0; 
+          float xPos = angle - waveSpeed;
+          
+          float waveShape = sin(xPos * 4.0); 
+          float edgeFade = smoothstep(0.0, 0.1, vUv.x) * smoothstep(1.0, 0.9, vUv.x) * smoothstep(0.0, 0.1, vUv.y) * smoothstep(1.0, 0.9, vUv.y);
+          waveShape *= edgeFade;
 
-          vec4 color = texture2D(uTexture, safeUv);
+          vec2 distortedUv = uv - (waveShape * 0.01); 
+          vec4 color = texture2D(uTexture, distortedUv);
 
-          // セピア調の加工
-          float r = color.r;
-          float g = color.g;
-          float b = color.b;
+          float r = color.r; float g = color.g; float b = color.b;
           color.r = r * 0.393 + g * 0.769 + b * 0.189;
           color.g = r * 0.349 + g * 0.686 + b * 0.168;
           color.b = r * 0.272 + g * 0.534 + b * 0.131;
 
-          color.rgb *= 0.6;
+          color.rgb *= 0.55;
+
+          float highlight = max(waveShape, 0.0) * 0.1; 
+          float shadow = max(-waveShape, 0.0) * 0.1; 
+
+          color.rgb += highlight; 
+          color.rgb -= shadow;   
 
           gl_FragColor = color;
         }
@@ -88,9 +96,7 @@ export default function Background() {
     const mesh = new THREE.Mesh(geometry, material)
     scene.add(mesh)
 
-    // スクロールイベントの監視
     const handleScroll = () => {
-      // 画面全体の高さに対する現在のスクロール位置を 0.0 ～ 1.0 で計算
       const scrollHeight = document.documentElement.scrollHeight - window.innerHeight
       const scrollTop = window.scrollY
       const scrollPercent = scrollHeight > 0 ? scrollTop / scrollHeight : 0
@@ -98,13 +104,28 @@ export default function Background() {
     }
     window.addEventListener("scroll", handleScroll)
 
+    // ★軽量化のための時間管理システムを導入
+    const clock = new THREE.Clock()
+    let delta = 0
+    const interval = 1 / 30 // 💥 秒間30フレーム（30fps）に制限してGPU負荷を半分以下にカット
+
     let animationId
-    const animate = (time) => {
-      material.uniforms.uTime.value = time * 0.0001
-      renderer.render(scene, camera)
+    const animate = () => {
       animationId = requestAnimationFrame(animate)
+      
+      delta += clock.getDelta()
+      
+      // 設定したフレームレート（1/30秒）に達したときだけ描画ロジックを走らせる
+      if (delta > interval) {
+        // アニメーション用のuTime更新はミリ秒（performance.now）基準の計算のまま完全に維持
+        material.uniforms.uTime.value = performance.now() * 0.0001
+        renderer.render(scene, camera)
+        
+        delta = delta % interval
+      }
     }
-    requestAnimationFrame(animate)
+    // ループ開始
+    animate()
 
     const handleResize = () => {
       const w = window.innerWidth

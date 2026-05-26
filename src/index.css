@@ -1,11 +1,14 @@
+/* ==========================================================================
+   1. 共通設定 & ボディスタイル
+   ========================================================================= */
 body {
   margin: 0;
-  background: #000; /* Three.js読み込みまでの繋ぎ */
-  overflow: hidden;
+  background: #000;
+  overflow-x: hidden;
   color: white;
+  overflow-y: auto;
 }
 
-/* 走査線ノイズ。Three.jsの上に重ねる */
 body::after {
   content: "";
   position: fixed;
@@ -26,37 +29,460 @@ body::after {
   to { transform: translateY(30px); }
 }
 
+#root {
+  background: transparent !important;
+}
+
+/* ==========================================================================
+   2. ナビゲーションバー
+   ========================================================================== */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  padding: 20px 0;
+  background: rgba(0, 0, 0, 0.5); 
+  backdrop-filter: blur(12px);    
+  z-index: 1000;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.nav-link {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: 0.7;
+  transition: 0.3s;
+}
+
+.nav-link:hover {
+  opacity: 1;
+  color: #00d4ff; 
+}
+
+/* ==========================================================================
+   3. レイアウト共通レイヤー & 文字表示用ボックス枠（透過調整版）
+   ========================================================================== */
 .menu {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: relative;
+  width: 100%;
+  max-width: 1200px; 
+  margin: 0 auto;
+  padding: 140px 20px 100px; 
   z-index: 10;
+  text-align: center;
+  color: white;
+  box-sizing: border-box;
+}
+
+.text-frame-box {
+  background: rgba(10, 10, 10, 0.45); 
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 40px;
+  max-width: 850px;
+  margin: 40px auto 0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  text-align: left; 
+}
+.text-frame-box .title { text-align: center; }
+.text-frame-box .subtitle { text-align: center; }
+.text-frame-box p {
+  color: #e2e8f0;
+  font-size: 0.98rem;
+  line-height: 1.8;
 }
 
 .title {
   font-size: 48px;
-  text-align: center;
-  margin-bottom: 40px;
+  margin-top: 0;
+  margin-bottom: 10px;
   letter-spacing: 4px;
   text-shadow: 0 0 10px #c084fc, 0 0 30px #7c3aed;
 }
 
-.menu-item {
-  font-size: 24px;
-  padding: 10px 0;
-  text-align: center;
-  cursor: pointer;
-  transition: 0.3s;
+.subtitle {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
   opacity: 0.7;
 }
 
-.menu-item:hover {
-  opacity: 1;
-  transform: scale(1.1);
-  text-shadow: 0 0 10px #fff, 0 0 20px #a78bfa;
+.section-title {
+  font-size: 1.8rem;
+  margin-top: 40px;
+  margin-bottom: 20px;
+  text-align: left;
+  border-left: 4px solid #7c3aed;
+  padding-left: 12px;
+  text-shadow: 0 0 10px rgba(124, 58, 237, 0.5);
 }
 
-#root {
-  background: transparent !important;
+/* About Me 装飾 */
+.about-section {
+  margin-top: 35px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 20px;
 }
+.about-section h3 {
+  font-size: 1.4rem;
+  color: #c084fc;
+  margin-top: 0;
+  margin-bottom: 15px;
+  text-shadow: 0 0 8px rgba(192, 132, 252, 0.4);
+}
+.about-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 15px;
+}
+.about-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.95rem;
+  text-align: left;
+  color: #cbd5e1;
+}
+.about-date { width: 160px; color: #a78bfa !important; font-weight: bold; }
+
+/* スキルスタック表示システム */
+.skill-group-container {
+  margin-bottom: 30px;
+}
+
+.skill-sub-title {
+  font-size: 1.05rem;
+  color: #fff;
+  margin: 20px 0 15px 0;
+  border-left: 3px solid #7c3aed;
+  padding-left: 8px;
+}
+
+.about-skill-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.about-skill-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.about-skill-others-title {
+  font-size: 0.9rem;
+  color: #aaa;
+  margin: 15px 0 8px 6px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.about-skill-badges-flex {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 4px 6px;
+}
+
+/* 楕円バッジの共通化スタイル */
+.about-oval-badge {
+  font-size: 0.75rem;
+  padding: 3px 14px;
+  border-radius: 20px; 
+  background: rgba(255, 255, 255, 0.02);
+  white-space: nowrap;
+  display: inline-block;
+  font-weight: bold;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.about-oval-badge.main-size {
+  min-width: 110px;
+}
+
+.about-oval-badge.lang-main { border: 1px solid #1e88e5; color: #42a5f5; } 
+.about-oval-badge.lang-sub  { border: 1px solid rgba(30, 136, 229, 0.4); color: #90caf9; background: rgba(30, 136, 229, 0.05); } 
+.about-oval-badge.tool-main { border: 1px solid #00897b; color: #26a69a; } 
+.about-oval-badge.tool-sub  { border: 1px solid rgba(0, 137, 123, 0.4); color: #80cbc4; background: rgba(0, 137, 123, 0.05); } 
+
+.about-skill-desc {
+  font-size: 0.92rem;
+  color: #cbd5e1;
+  flex-grow: 1;
+}
+
+.about-skill-duration {
+  font-size: 0.92rem;
+  color: #38bdf8;
+  font-weight: bold;
+  white-space: nowrap;
+  text-align: right;
+  min-width: 50px;
+}
+
+/* ==========================================================================
+   4. 作品一覧グリッド（等倍・サイズ完全固定化）
+   ========================================================================== */
+.works-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)); 
+  gap: 16px;
+  width: 100%;
+  margin-top: 30px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1024px) {
+  .works-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 768px) {
+  .works-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .works-grid { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+}
+
+.works-grid.home-grid {
+  display: flex !important;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: stretch;
+  gap: 16px;
+  flex-wrap: nowrap;
+  overflow-x: hidden;
+}
+
+.home-grid .work-card-link {
+  flex: 0 0 calc(25% - 12px);
+  width: calc(25% - 12px);
+  max-width: calc(25% - 12px);
+  min-width: 240px;
+}
+
+/* ==========================================================================
+   5. 作品カード（WorkCard）形状固定・透過度調整
+   ========================================================================== */
+.work-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: transform 0.2s ease;
+  flex-shrink: 0; 
+  height: 100%;
+  max-width: 100%; 
+  box-sizing: border-box;
+}
+.work-card-link:hover { transform: translateY(-4px); }
+
+.work-card {
+  background-color: rgba(15, 15, 15, 0.4);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%; 
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.work-card-visual {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background-color: rgba(5, 5, 5, 0.5); 
+  overflow: hidden;
+  display: block;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.work-card-visual img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); 
+  max-width: 100%;  
+  max-height: 100%; 
+  width: auto;      
+  height: auto;     
+  object-fit: contain; 
+  display: block;
+}
+
+.work-card-info {
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-grow: 1; 
+  background: rgba(0, 0, 0, 0.2); 
+  box-sizing: border-box;
+}
+
+.work-card-title {
+  font-size: 1.05rem;
+  font-weight: bold;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #fff;
+  text-align: center; 
+}
+
+.work-card-meta {
+  font-size: 0.8rem;
+  color: #d1d1d1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.work-meta-date {
+  background: rgba(35, 35, 35, 0.6);
+  padding: 1px 6px;
+  border-radius: 4px;
+  width: fit-content;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  margin: 0 auto; 
+}
+
+.work-meta-desc {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+  text-align: center; 
+}
+
+.work-tags-container {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: auto; 
+  padding-top: 6px;
+}
+.tag-group { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; } 
+.work-tag {
+  font-size: 0.7rem;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  white-space: nowrap;
+}
+.tag-genre { border: 1px solid rgba(0, 137, 123, 0.6); color: #26a69a; }
+.tag-role { border: 1px solid rgba(30, 136, 229, 0.6); color: #42a5f5; }
+.tag-env { border: 1px solid rgba(97, 97, 97, 0.6); color: #bdbdbd; }
+
+/* ==========================================================================
+   6. プロジェクト詳細ページ
+   ========================================================================== */
+.project-detail {
+  text-align: left;
+  background: rgba(10, 10, 10, 0.45); 
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 40px !important;
+  margin-top: 40px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.project-visual {
+  width: 100%;
+  max-width: 900px;
+  aspect-ratio: 16 / 9; 
+  margin: 20px auto 30px;
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  position: relative;
+}
+
+.project-image, .project-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain; 
+  display: block;
+}
+
+.project-spec table {
+  width: 100%;
+  margin: 30px 0;
+  border-collapse: collapse;
+}
+
+.project-spec th, .project-spec td {
+  padding: 12px 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.95rem;
+}
+
+.project-spec th {
+  width: 150px;
+  color: #a78bfa;
+  text-align: left;
+  font-weight: bold;
+}
+
+.project-spec td { color: #fff; }
+
+.project-content h3 {
+  font-size: 1.4rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding-bottom: 8px;
+  margin-bottom: 15px;
+  color: #fff;
+}
+
+.project-links-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.project-link a {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.project-link a:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+  border-color: #00d4ff;
+  color: #00d4ff;
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.3);
+}
+
+.back-link {
+  display: inline-block;
+  margin-top: 40px;
+  color: #aaa;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: color 0.2s;
+}
+.back-link:hover { color: #00d4ff; }
